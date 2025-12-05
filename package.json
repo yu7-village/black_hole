@@ -14,8 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@skyway-sdk/token": "^1.0.1", 
-    "jsonwebtoken": "^9.0.2"
+    "@skyway-sdk/token": "^1.0.1",
+    "jsonwebtoken": "^9.0.2"  <-- 💡 この行が必要です
   },
   "devDependencies": {
     "netlify-cli": "^17.8.0"

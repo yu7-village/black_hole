@@ -1,9 +1,7 @@
-// netlify/functions/token.js (JWT 直生成版)
+// netlify/functions/token.js
 
-// 💡 修正ポイント: SkyWayAuthToken の代わりに jsonwebtoken を使用
 const jwt = require('jsonwebtoken');
 const { uuidV4 } = require('@skyway-sdk/token'); 
-// uuidV4 のためにパッケージは残す
 
 const SKYWAY_APP_ID = process.env.SKYWAY_APP_ID;
 const SKYWAY_SECRET_KEY = process.env.SKYWAY_SECRET_KEY;
@@ -23,23 +21,25 @@ exports.handler = async (event, context) => {
     const NOW = Math.floor(Date.now() / 1000);
     const EXP = NOW + 3600; // 1時間後のUnixタイムスタンプ
 
-    // 💡 JWTペイロードの定義 (Skyway Auth Tokenの仕様に厳密に準拠)
+    // Skyway V3 SDKの仕様に準拠したペイロード
     const payload = {
       jti: uuidV4(),
-      iss: SKYWAY_APP_ID, // iss (発行者) は App ID
+      iss: SKYWAY_APP_ID, // V3 SDK では App ID が推奨される
       iat: NOW,
       exp: EXP,
       scope: {
         app: {
           id: SKYWAY_APP_ID,
           turn: true,
+          actions: ['read', 'write'], 
           rooms: [ 
             {
               name: ROOM_NAME, 
+              actions: ['read', 'write'], 
               members: [
                 {
                   name: '*',
-                  actions: ['publish', 'subscribe'], 
+                  actions: ['read', 'write'],
                 },
               ],
             },
@@ -48,11 +48,11 @@ exports.handler = async (event, context) => {
       },
     };
 
-    // シークレットキーとHS256アルゴリズムを使用してトークンを生成
+    // jsonwebtokenでトークンを署名
     const token = jwt.sign(payload, SKYWAY_SECRET_KEY, { algorithm: 'HS256' });
 
     return {
-      statusCode: 200, // 成功ステータス
+      statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*', 
       },
