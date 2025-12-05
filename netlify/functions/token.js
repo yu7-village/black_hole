@@ -1,4 +1,4 @@
-// netlify/functions/token.js (最終調整版)
+// netlify/functions/token.js (最小権限構成版)
 
 const { SkyWayAuthToken, uuidV4 } = require('@skyway-sdk/token');
 
@@ -17,6 +17,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    // 💡 修正ポイント: rooms内の構造をjoin/publish/subscribeに必要な最小限に絞る
     const token = new SkyWayAuthToken({
       jti: uuidV4(),
       ttl: 3600, // 1時間
@@ -28,11 +29,15 @@ exports.handler = async (event, context) => {
           rooms: [ 
             {
               name: ROOM_NAME,
+              // RoomレベルのactionsやsfuBotsは省略
               members: [
                 {
+                  // ユーザーIDは自動生成されるためワイルドカード('*')
                   id: '*',
+                  // ユーザー名は任意なのでワイルドカード('*')
                   name: '*',
-                  actions: ['publish', 'subscribe', 'updateMetadata'], 
+                  // 接続と通信に必要な最小限のメソッドを明示
+                  actions: ['publish', 'subscribe'], 
                 },
               ],
             },
@@ -51,7 +56,7 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('Error generating Skyway Auth Token:', error);
     return {
-      statusCode: 500, // 502を避けるため、敢えて500を返す
+      statusCode: 500, // 502/500をクライアントに返す
       body: JSON.stringify({ error: 'Failed to generate authentication token. Check Netlify Functions logs for details.' }),
     };
   }
