@@ -16,6 +16,11 @@ exports.handler = async (event, context) => {
     };
   }
 
+// netlify/functions/token.js の tryブロックの直前
+// ⚠️ デバッグが完了したら必ずこの行を削除してください！
+  console.log('DEBUG: Secret Key length:', SKYWAY_SECRET_KEY ? SKYWAY_SECRET_KEY.length : 0);
+
+
   try {
     // 💡 修正ポイント: rooms内の構造をjoin/publish/subscribeに必要な最小限に絞る
     const token = new SkyWayAuthToken({
