@@ -1,0 +1,11 @@
+# netlify.toml
+
+[build]
+  # フロントエンドのビルド設定 (今回は静的ファイルのみなので空でも可)
+  publish = "." 
+
+[functions]
+  # サーバーレス機能のソースディレクトリ
+  directory = "netlify/functions"
+  # Node.jsの安定最新バージョンに近いランタイムを使用
+  node_bundler = "esbuild"

@@ -1,0 +1,22 @@
+{
+  "name": "black_hole",
+  "version": "1.0.0",
+  "description": "Secure video call app with Skyway v3 and Netlify Functions.",
+  "main": "index.html",
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "keywords": [
+    "skyway",
+    "netlify",
+    "video-call"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@skyway-sdk/token": "^1.0.1" 
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.8.0"
+  }
+}

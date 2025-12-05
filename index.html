@@ -3,133 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>おしゃれなホームページ</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Skyway v3 Secure Video Call</title>
     <style>
-        /* 全体の基本設定 */
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #74ABE2, #5563DE);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            text-align: center;
-            padding: 50px 20px 20px;
-        }
-
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            width: 300px;
-            text-align: center;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .card img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .card h2 {
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-        }
-
-        .card p {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-
-        .card a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #fff;
-            color: #5563DE;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background 0.3s ease;
-        }
-
-        .card a:hover {
-            background: #f0f0f0;
-        }
-
-        footer {
-            text-align: center;
-            padding: 15px;
-            font-size: 0.85rem;
-            background: rgba(0, 0, 0, 0.2);
-        }
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background-color: #1a1a2e; color: #fff; }
+        .container { max-width: 1000px; margin: auto; }
+        h1 { color: #8d93e8; }
+        #room-id { font-size: 2em; margin-bottom: 20px; padding: 10px; background-color: #0f0f1a; border-radius: 5px; }
+        #videos-container { display: flex; justify-content: space-around; flex-wrap: wrap; margin-bottom: 20px; }
+        .video-wrapper { width: 45%; min-width: 300px; margin: 10px 0; border: 2px solid #3a3a5e; border-radius: 8px; overflow: hidden; }
+        video { width: 100%; height: auto; display: block; }
+        .label { padding: 5px; background-color: #3a3a5e; color: #fff; text-align: left; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; transition: background-color 0.3s; }
+        button:hover:not(:disabled) { background-color: #45a049; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #alert-message { color: #ffeb3b; background-color: #d32f2f; padding: 10px; border-radius: 5px; margin-top: 20px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>ようこそ！</h1>
-        <p>おしゃれでシンプルなホームページのサンプルです</p>
-    </header>
-
-    <main>
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" alt="HTML">
-            <h2>HTMLの基本</h2>
-            <p>Webページの骨組みを作るための言語です。見出しや段落、リンクなどを定義します。</p>
-            <a href="#">もっと見る</a>
+    <div class="container">
+        <h1>Secure Skyway Video Call (Netlify Functions)</h1>
+        
+        <div id="room-id">Current Room: **black_hole**</div>
+        
+        <div id="controls">
+            <button id="join-button">入室</button>
+            <button id="leave-button" disabled>退出</button>
+            <button id="mute-toggle-button" disabled>ミュート</button>
         </div>
 
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" alt="CSS">
-            <h2>CSSの基本</h2>
-            <p>Webページのデザインやレイアウトを整えるためのスタイルシート言語です。</p>
-            <a href="#">もっと見る</a>
-        </div>
+        <div id="alert-message"></div>
 
-        <div class="card">
-            <img src="https://via.placeholder.com/300x200" alt="JavaScript">
-            <h2>JavaScriptの基本</h2>
-            <p>Webページに動きをつけるためのプログラミング言語です。</p>
-            <a href="#">もっと見る</a>
+        <div id="videos-container">
+            <div class="video-wrapper">
+                <div class="label">Local Video (Me)</div>
+                <video id="local-video" autoplay muted playsinline></video>
+            </div>
+            <div class="video-wrapper">
+                <div class="label">Remote Video (Peer)</div>
+                <video id="remote-video" autoplay playsinline></video>
+            </div>
         </div>
-    </main>
+    </div>
 
-    <footer>
-        &copy; 2025 My Stylish Website
-    </footer>
+    <script src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
