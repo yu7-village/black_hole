@@ -17,7 +17,6 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // 💡 修正ポイント: scope構造を最小限に簡略化
     const token = new SkyWayAuthToken({
       jti: uuidV4(),
       ttl: 3600, // 1時間
@@ -29,23 +28,19 @@ exports.handler = async (event, context) => {
           rooms: [ 
             {
               name: ROOM_NAME,
-              // actions: ['read', 'write'], // ❌ 冗長な actions を削除
               members: [
                 {
                   id: '*',
                   name: '*',
-                  // メンバーのpublish/subscribeの権限を明示
                   actions: ['publish', 'subscribe', 'updateMetadata'], 
                 },
               ],
-              // sfuBots定義を削除し、デフォルト設定に任せる
             },
           ],
         },
       },
     }).encode(SKYWAY_SECRET_KEY);
 
-    // トークンをクライアントに返す
     return {
       statusCode: 200,
       headers: {
@@ -55,9 +50,8 @@ exports.handler = async (event, context) => {
     };
   } catch (error) {
     console.error('Error generating Skyway Auth Token:', error);
-    // エラー詳細をログに残し、クライアントには一般的なエラーを返す
     return {
-      statusCode: 500,
+      statusCode: 500, // 502を避けるため、敢えて500を返す
       body: JSON.stringify({ error: 'Failed to generate authentication token. Check Netlify Functions logs for details.' }),
     };
   }
