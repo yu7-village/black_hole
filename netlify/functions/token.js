@@ -1,6 +1,9 @@
-// netlify/functions/token.js (最新の最終修正版)
+// netlify/functions/token.js (JWT 直生成版)
 
-const { SkyWayAuthToken, uuidV4 } = require('@skyway-sdk/token');
+// 💡 修正ポイント: SkyWayAuthToken の代わりに jsonwebtoken を使用
+const jwt = require('jsonwebtoken');
+const { uuidV4 } = require('@skyway-sdk/token'); 
+// uuidV4 のためにパッケージは残す
 
 const SKYWAY_APP_ID = process.env.SKYWAY_APP_ID;
 const SKYWAY_SECRET_KEY = process.env.SKYWAY_SECRET_KEY;
@@ -17,23 +20,25 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const token = new SkyWayAuthToken({
+    const NOW = Math.floor(Date.now() / 1000);
+    const EXP = NOW + 3600; // 1時間後のUnixタイムスタンプ
+
+    // 💡 JWTペイロードの定義 (Skyway Auth Tokenの仕様に厳密に準拠)
+    const payload = {
       jti: uuidV4(),
-      ttl: 3600, // 1時間
-      iat: Math.floor(Date.now() / 1000),
+      iss: SKYWAY_APP_ID, // iss (発行者) は App ID
+      iat: NOW,
+      exp: EXP,
       scope: {
         app: {
           id: SKYWAY_APP_ID,
           turn: true,
           rooms: [ 
             {
-              // Roomリソースを名前で特定
               name: ROOM_NAME, 
               members: [
                 {
-                  // メンバーリソースを名前で特定 (ワイルドカード '*')
                   name: '*',
-                  // 最小限の権限: publish (送信) と subscribe (受信)
                   actions: ['publish', 'subscribe'], 
                 },
               ],
@@ -41,7 +46,10 @@ exports.handler = async (event, context) => {
           ],
         },
       },
-    }).encode(SKYWAY_SECRET_KEY);
+    };
+
+    // シークレットキーとHS256アルゴリズムを使用してトークンを生成
+    const token = jwt.sign(payload, SKYWAY_SECRET_KEY, { algorithm: 'HS256' });
 
     return {
       statusCode: 200, // 成功ステータス
@@ -51,10 +59,10 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ token: token }),
     };
   } catch (error) {
-    console.error('Error generating Skyway Auth Token:', error);
+    console.error('Error generating Skyway Auth Token (JWT method):', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to generate authentication token. Check Netlify Functions logs for the specific error.' }),
+      body: JSON.stringify({ error: 'Failed to generate authentication token using JWT. Check Netlify Functions logs.' }),
     };
   }
 };
